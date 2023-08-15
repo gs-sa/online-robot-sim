@@ -18,9 +18,10 @@ pub struct Robot {
 impl Robot {
     #[wasm_bindgen(constructor)]
     pub fn new(urdf: &str, tip: &str) -> Robot {
+        // utils::set_panic_hook();
         let (m_list, s_list_) = parse_urdf_string(urdf, tip);
         let mut s_list = [Vector6::<f64>::zeros(); 7];
-        s_list.copy_from_slice(&s_list_);
+        s_list.copy_from_slice(&s_list_[0..7]);
         Robot {
             m: *m_list.last().unwrap(),
             s_list,
@@ -28,6 +29,7 @@ impl Robot {
     }
 
     pub fn ik(&self, target: Vec<f64>, init: Vec<f64>) -> Result<Vec<f64>, bool> {
+        // utils::set_panic_hook();
         let target = Matrix4::<f64>::from_column_slice(&target);
         let init = SVector::<f64, 7>::from_vec(init);
         match ik_space(&self.m, &self.s_list, &target, &init, 1e-4, 1e-4, 10) {

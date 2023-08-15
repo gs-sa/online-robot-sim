@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import URDFLoader, { URDFRobot } from "urdf-loader"
-import { Robot } from "wasm";
+import init, { Robot } from "wasm";
 
 export class RobotRenderer {
     renderer: WebGLRenderer
@@ -35,6 +35,7 @@ export class RobotRenderer {
         for (let a in this.robot.joints) {
             joints.push(this.robot.joints[a].angle as number);
         }
+        // console.log(joints.length);
         let new_joints = this.ik_robot.ik(new Float64Array(this.tip.matrix.elements), new Float64Array(joints));
         this.robot.setJointValues({
             "panda_joint1": new_joints[0],
@@ -110,10 +111,10 @@ export function build_robot_renderer(container: HTMLDivElement) {
         });
         window.addEventListener('keydown', (event) => {
             switch (event.key) {
-                case "t": 
+                case "t":
                     t.setMode("translate");
                     break;
-                case "r": 
+                case "r":
                     t.setMode("rotate");
                     break;
             }
@@ -122,18 +123,21 @@ export function build_robot_renderer(container: HTMLDivElement) {
         fetch("./Panda/panda.urdf").then((res) => {
             return res.text();
         }).then((urdf) => {
-            let ik_robot = new Robot(urdf, "panda_hand");
-            robot_renderer = new RobotRenderer(renderer, scene, camera, robot, ik_robot, tip);
-            robot_renderer.robot.setJointValues({
-                "panda_joint1": 0.,
-                "panda_joint2": -Math.PI / 4.,
-                "panda_joint3": 0.,
-                "panda_joint4": -3. * Math.PI / 4.,
-                "panda_joint5": 0.,
-                "panda_joint6": Math.PI / 2.,
-                "panda_joint7": Math.PI / 4.,
-            });
-            robot_renderer.render();
+            init().then(() => {
+                console.log("wasm initialized");
+                let ik_robot = new Robot(urdf, "panda_hand");
+                robot_renderer = new RobotRenderer(renderer, scene, camera, robot, ik_robot, tip);
+                robot_renderer.robot.setJointValues({
+                    "panda_joint1": 0.,
+                    "panda_joint2": -Math.PI / 4.,
+                    "panda_joint3": 0.,
+                    "panda_joint4": -3. * Math.PI / 4.,
+                    "panda_joint5": 0.,
+                    "panda_joint6": Math.PI / 2.,
+                    "panda_joint7": Math.PI / 4.,
+                });
+                robot_renderer.render();
+            })
         })
 
     }, () => { }, () => { console.log("error") });

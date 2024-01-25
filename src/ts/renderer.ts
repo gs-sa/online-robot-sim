@@ -4,6 +4,9 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 import URDFLoader, { URDFRobot } from "urdf-loader"
 import init, { Robot } from "wasm";
+import { ref } from "vue";
+
+export let ik_time = ref("");
 
 export class RobotRenderer {
     renderer: WebGLRenderer
@@ -36,7 +39,9 @@ export class RobotRenderer {
             joints.push(this.robot.joints[a].angle as number);
         }
         // console.log(joints.length);
+        let start = performance.now();
         let new_joints = this.ik_robot.ik(new Float64Array(this.tip.matrix.elements), new Float64Array(joints));
+        ik_time.value = ((performance.now() - start) * 1000).toFixed(4) + "us"
         this.robot.setJointValues({
             "panda_joint1": new_joints[0],
             "panda_joint2": new_joints[1],

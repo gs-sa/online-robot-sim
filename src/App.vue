@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { build_robot_renderer, robot_renderer } from "./ts/renderer";
+import { build_robot_renderer, robot_renderer, ik_time } from "./ts/renderer";
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 const container = ref<HTMLDivElement | null>(null);
 onMounted(() => {
@@ -40,6 +40,7 @@ const handel_export = () => {
     <h1>franka panda ik</h1>
     <h2>press r to rotate, press t to translate</h2>
     <button @click="handel_export"> export gltf</button>
+    <div> {{ ik_time }} </div>
   </div>
   <div ref="container"></div>
 </template>
